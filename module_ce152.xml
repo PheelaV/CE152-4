@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ce152" default="compile.module.ce152">
+  <dirname property="module.ce152.basedir" file="${ant.file.module_ce152}"/>
+  
+  <property name="module.jdk.home.ce152" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ce152" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ce152" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ce152" value="-encoding UTF-8 -source 13 -target 13 ${compiler.args}"/>
+  
+  <property name="ce152.output.dir" value="${module.ce152.basedir}/out/production/ce152"/>
+  <property name="ce152.testoutput.dir" value="${module.ce152.basedir}/out/test/ce152"/>
+  
+  <path id="ce152.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ce152.module.production.classpath">
+    <path refid="${module.jdk.classpath.ce152}"/>
+  </path>
+  
+  <path id="ce152.runtime.production.module.classpath">
+    <pathelement location="${ce152.output.dir}"/>
+  </path>
+  
+  <path id="ce152.module.classpath">
+    <path refid="${module.jdk.classpath.ce152}"/>
+    <pathelement location="${ce152.output.dir}"/>
+  </path>
+  
+  <path id="ce152.runtime.module.classpath">
+    <pathelement location="${ce152.testoutput.dir}"/>
+    <pathelement location="${ce152.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ce152">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ce152">
+    <patternset refid="excluded.from.module.ce152"/>
+  </patternset>
+  
+  <path id="ce152.module.sourcepath">
+    <dirset dir="${module.ce152.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.ce152" depends="compile.module.ce152.production,compile.module.ce152.tests" description="Compile module ce152"/>
+  
+  <target name="compile.module.ce152.production" depends="register.custom.compilers" description="Compile module ce152; production classes">
+    <mkdir dir="${ce152.output.dir}"/>
+    <javac2 destdir="${ce152.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ce152}/javac">
+      <compilerarg line="${compiler.args.ce152}"/>
+      <bootclasspath refid="ce152.module.bootclasspath"/>
+      <classpath refid="ce152.module.production.classpath"/>
+      <src refid="ce152.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.ce152"/>
+    </javac2>
+    
+    <copy todir="${ce152.output.dir}">
+      <fileset dir="${module.ce152.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.ce152.tests" depends="register.custom.compilers,compile.module.ce152.production" description="compile module ce152; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ce152" description="cleanup module">
+    <delete dir="${ce152.output.dir}"/>
+    <delete dir="${ce152.testoutput.dir}"/>
+  </target>
+</project>
