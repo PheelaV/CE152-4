@@ -3,6 +3,7 @@ package assignment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class EarthFrame extends JFrame {
 
@@ -10,6 +11,8 @@ public class EarthFrame extends JFrame {
     private EarthFrameRenderListener eventListener;
 
     private final String title = "Earth Altitude Map";
+
+    private ArrayList<MapCoordinate> selectedCoordinates = new ArrayList<>();
 
     public EarthFrame(Earth earth){
         this.earthRenderer = new EarthRenderer(earth);
@@ -36,27 +39,29 @@ public class EarthFrame extends JFrame {
             var y = earthRenderer.getLastClickedY();
             var visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
             setTitle(title + "| selected (" +  x + "," + y + ")  visible altitude= " + visibleAltitude);
-        }
 
-        @Override
-        public void mousePressed(MouseEvent e) {
+            selectedCoordinates.add(earthRenderer.getLastSelectedCoordinate());
+            // print the clicked coordinates to cl
+            // print the distance to last selected
+            // sort the list
+            // right click should delete the last added coordinate and print the deleted coordinate
 
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
+            //method, that will write the list of coordinates to a file, start a new file each time the program is run,
+            // I may overwrite the last file, but I shall not overwrite the existing coordinates when adding a new set
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mousePressed(MouseEvent e) { }
 
-        }
+        @Override
+        public void mouseReleased(MouseEvent e) { }
+
+        @Override
+        public void mouseEntered(MouseEvent e) { }
+
+        @Override
+        public void mouseExited(MouseEvent e) { }
 
         @Override
         public void mouseDragged(MouseEvent e) {
@@ -64,8 +69,7 @@ public class EarthFrame extends JFrame {
         }
 
         @Override
-        public void mouseMoved(MouseEvent e) {
-        }
+        public void mouseMoved(MouseEvent e) { }
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
@@ -82,13 +86,9 @@ public class EarthFrame extends JFrame {
         }
 
         @Override
-        public void keyPressed(KeyEvent e) {
-
-        }
+        public void keyPressed(KeyEvent e) { }
 
         @Override
-        public void keyReleased(KeyEvent e) {
-
-        }
+        public void keyReleased(KeyEvent e) { }
     }
 }

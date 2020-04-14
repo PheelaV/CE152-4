@@ -3,8 +3,6 @@ package assignment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class EarthRenderer extends JComponent {
@@ -59,11 +57,12 @@ public class EarthRenderer extends JComponent {
     private boolean clickIndicatorActive = false;
     private int xLastClicked = 0;
     private int yLastClicked = 0;
+    private MapCoordinate lastCoordinateSelected;
     private double selectedVisibleAltitude;
 
     public EarthRenderer(Earth earth){
         this.earth = earth;
-        this.Init();
+        this.init();
 //        this.processeve
     }
 
@@ -77,6 +76,9 @@ public class EarthRenderer extends JComponent {
         return this.xProjectionSize;
     }
 
+    //subSample the data and calculate their RGB values
+    //TODO: better solution would be to regenerate the data when zooming and rising sea level, but keep a cached version for panning
+    //TODO: or cash the RGB values for the whole dataset and regenerate only when rising sea level, keep samplings as it is
     @Override
     public void paintComponent(Graphics g) {
         this.setProjectionVariables();
@@ -166,7 +168,7 @@ public class EarthRenderer extends JComponent {
         return min + (value - minScale) / (double)(maxScale - minScale) * (double)(max - min);
     }
 
-    private void Init(){
+    private void init(){
         this.refreshData();
 
         var adaptor = new MapInputAdapter();
@@ -180,7 +182,9 @@ public class EarthRenderer extends JComponent {
     }
 
     private void seaLevel(int addedAltitude){
-        //this is utterly inefficient, but it is part of the assignment, better option is to affect just the values displayed
+        //this is utterly inefficient, but it is part of the assignment spec,
+        // better option is to affect just the values displayed
+        // that is why the code is currently deactivated
 //        this.earth.seaLevel(addedAltitude);
 //        this.refreshData();
         this.seaLevelRise += addedAltitude;
@@ -231,11 +235,15 @@ public class EarthRenderer extends JComponent {
     }
 
     public int getLastClickedX() {
-        return xLastClicked;
+        return this.xLastClicked;
     }
 
     public int getLastClickedY() {
-        return yLastClicked;
+        return this.yLastClicked;
+    }
+
+    public MapCoordinate getLastSelectedCoordinate(){
+        return this.lastCoordinateSelected;
     }
 
     public double getSelectedVisibleAltitude() {
@@ -264,6 +272,7 @@ public class EarthRenderer extends JComponent {
             setProjectionVariables();
             var yInverted = yProjectionSize - 1 - yLastClicked;
             var coordinate = getProjectedMapCoordinate(xLastClicked,  yInverted);
+            lastCoordinateSelected = coordinate;
             selectedVisibleAltitude = coordinate.altitude + seaLevelRise;
             onCoordinateSelected();
 
@@ -400,7 +409,9 @@ public class EarthRenderer extends JComponent {
             xZoomPanCompensation = 0;
             yZoomPanCompensation = 0;
             clickIndicatorActive = false;
-
+            altitudeMin -= seaLevelRise;
+            altitudeMax -= seaLevelRise;
+            seaLevelRise = 0;
             setRenderingUnits();
             repaint();
         }
