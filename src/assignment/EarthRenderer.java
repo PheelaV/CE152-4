@@ -3,13 +3,23 @@ package assignment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class EarthRenderer extends JComponent {
+
+    public ActionEvent coordinateSelected;
+    public ActionEvent coordinateDeselected;
+
     private Earth earth;
 
-    private final int xProjectionSize = 640;
-    private final int yProjectionSize = 320;
+    private final int xProjectionSize = 720;
+    private final int yProjectionSize = 360;
+
+    //WARNING: Chokes on weak hardware
+//    private final int xProjectionSize = 1920;
+//    private final int yProjectionSize = 1080;
 
     private final int waterLevel = 0;
     private final int greenLevel = 300;
@@ -29,6 +39,11 @@ public class EarthRenderer extends JComponent {
     private int xZoomPanCompensation = 0;
     private int yZoomPanCompensation = 0;
 
+    private float xVirtualProjectionSize;
+    private float yVirtualProjectionSize;
+    private float xVirtualPan;
+    private float yVirtualPan;
+
     private double realXUnit;
     private double realYUnit;
     private int seaLevelRise = 0;
@@ -41,9 +56,15 @@ public class EarthRenderer extends JComponent {
     private int xDefaultPan;
     //endfun
 
+    private boolean clickIndicatorActive = false;
+    private int xLastClicked = 0;
+    private int yLastClicked = 0;
+    private double selectedVisibleAltitude;
+
     public EarthRenderer(Earth earth){
         this.earth = earth;
         this.Init();
+//        this.processeve
     }
 
     @Override
@@ -58,27 +79,12 @@ public class EarthRenderer extends JComponent {
 
     @Override
     public void paintComponent(Graphics g) {
-        var xVirtualProjectionSize = zoom * xProjectionSize;
-        var yVirtualProjectionSize = zoom * yProjectionSize;
-        var xVirtualPan = this.xPan * zoom;
-        var yVirtualPan = this.yPan * zoom;
+        this.setProjectionVariables();
 
         for (var x = 0; x < xProjectionSize; x++){
             for (var y = 0; y < yProjectionSize; y++){
-                //account for plane panning, limit value to the projectionConstraints
-                var xSubModulo =  ((x + xVirtualPan) % xVirtualProjectionSize);
-                var ySubModulo =  ((y - yVirtualPan) % yVirtualProjectionSize);
-
-                //if it is negative, invert it with respect the projection size
-                var xSubExact = realXUnit * (xSubModulo < 0 ? xVirtualProjectionSize + xSubModulo : xSubModulo);
-                var ySubExact = realYUnit * (ySubModulo < 0 ? yVirtualProjectionSize + ySubModulo : ySubModulo);
-                //round the value for array indexing,
-
-                var xSubIndex = (int)Math.floor(xSubExact);
-                var ySubIndex = (int)Math.floor(ySubExact);
-
                 // get the subSample
-                var mapCoordinate = this.data.get(xSubIndex).get(ySubIndex);
+                var mapCoordinate = getProjectedMapCoordinate(x, y);
                 //pick a scaled color with respect to altitude
                 var color = getColor(mapCoordinate.altitude + seaLevelRise);
                 g.setColor(color);
@@ -88,6 +94,36 @@ public class EarthRenderer extends JComponent {
                 g.drawLine(x,yInverted,x,yInverted);
             }
         }
+
+        if(clickIndicatorActive){
+            g.setColor(Color.green);
+            g.drawLine(xLastClicked, yLastClicked, xLastClicked + 10, yLastClicked);
+            g.drawLine(xLastClicked, yLastClicked, xLastClicked, yLastClicked + 10);
+        }
+    }
+
+    private void setProjectionVariables(){
+        this.xVirtualProjectionSize = this.zoom * this.xProjectionSize;
+        this.yVirtualProjectionSize = this.zoom * this.yProjectionSize;
+        this.xVirtualPan = this.xPan * zoom;
+        this.yVirtualPan = this.yPan * zoom;
+    }
+
+    private MapCoordinate getProjectedMapCoordinate(int x, int y){
+        //account for plane panning, limit value to the projectionConstraints
+        var xSubModulo =  ((x + this.xVirtualPan) % this.xVirtualProjectionSize);
+        var ySubModulo =  ((y - this.yVirtualPan) % this.yVirtualProjectionSize);
+
+        //if it is negative, invert it with respect the projection size
+        var xSubExact = this.realXUnit * (xSubModulo < 0 ? this.xVirtualProjectionSize + xSubModulo : xSubModulo);
+        var ySubExact = this.realYUnit * (ySubModulo < 0 ? this.yVirtualProjectionSize + ySubModulo : ySubModulo);
+        //round the value for array indexing,
+
+        var xSubIndex = (int)Math.floor(xSubExact);
+        var ySubIndex = (int)Math.floor(ySubExact);
+
+        // get the subSample
+        return this.data.get(xSubIndex).get(ySubIndex);
     }
 
     private Color getColor(double altitude) {
@@ -194,6 +230,18 @@ public class EarthRenderer extends JComponent {
         this.realYUnit = yDataSize/(double)(yProjectionSize * zoom);
     }
 
+    public int getLastClickedX() {
+        return xLastClicked;
+    }
+
+    public int getLastClickedY() {
+        return yLastClicked;
+    }
+
+    public double getSelectedVisibleAltitude() {
+        return selectedVisibleAltitude;
+    }
+
     class MapInputAdapter extends MouseAdapter implements KeyListener {
         public MapInputAdapter() {
             super();
@@ -203,12 +251,25 @@ public class EarthRenderer extends JComponent {
         public void mouseClicked(MouseEvent e) {
             super.mouseClicked(e);
 
-            var button = e.getButton();
-            if (button == MouseEvent.BUTTON1){
-                this.zoomIn();
-            } else if (button == MouseEvent.BUTTON3){
-                this.zoomOut();
-            }
+//            var button = e.getButton();
+//            if (button == MouseEvent.BUTTON1){
+//                this.zoomIn();
+//            } else if (button == MouseEvent.BUTTON3){
+//                this.zoomOut();
+//            }
+//            clickIndicatorActive
+
+            xLastClicked = e.getX();
+            yLastClicked = e.getY();
+            setProjectionVariables();
+            var yInverted = yProjectionSize - 1 - yLastClicked;
+            var coordinate = getProjectedMapCoordinate(xLastClicked,  yInverted);
+            selectedVisibleAltitude = coordinate.altitude + seaLevelRise;
+            onCoordinateSelected();
+
+            System.out.println(coordinate);
+            System.out.println("VisibleAltitude: " + (coordinate.altitude + seaLevelRise));
+
             repaint();
         }
 
@@ -240,7 +301,8 @@ public class EarthRenderer extends JComponent {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             super.mouseWheelMoved(e);
-            seaLevel(10 * e.getWheelRotation() * e.getScrollAmount());
+            seaLevel(e.getWheelRotation() * e.getScrollAmount());
+            onCoordinateDeselected();
             repaint();
         }
 
@@ -260,6 +322,7 @@ public class EarthRenderer extends JComponent {
             xLastMouseDragStart = xMouseDragEnd;
             yLastMouseDragStart = yMouseDragEnd;
             mouseDragInProgress = true;
+            onCoordinateDeselected();
         }
 
         @Override
@@ -290,6 +353,16 @@ public class EarthRenderer extends JComponent {
 
         }
 
+        private void onCoordinateSelected(){
+            clickIndicatorActive = true;
+//            coordinateSelected.notifyAll();
+        }
+
+        private void onCoordinateDeselected(){
+            clickIndicatorActive = false;
+//            coordinateDeselected.notifyAll();
+        }
+
         private void zoomIn(){
             zoom *= 2;
 
@@ -301,6 +374,7 @@ public class EarthRenderer extends JComponent {
             yPan += yCurrentCompensation;
 
             setRenderingUnits();
+            clickIndicatorActive = false;
             repaint();
         }
 
@@ -315,6 +389,7 @@ public class EarthRenderer extends JComponent {
             yPan += yCurrentCompensation;
 
             setRenderingUnits();
+            clickIndicatorActive = false;
             repaint();
         }
 
@@ -324,6 +399,7 @@ public class EarthRenderer extends JComponent {
             yPan = 0;
             xZoomPanCompensation = 0;
             yZoomPanCompensation = 0;
+            clickIndicatorActive = false;
 
             setRenderingUnits();
             repaint();
