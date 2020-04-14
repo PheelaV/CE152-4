@@ -11,12 +11,19 @@ public class EarthRenderer extends JComponent {
     private final int xProjectionSize = 640;
     private final int yProjectionSize = 320;
 
+    private final int waterLevel = 0;
+    private final int greenLevel = 300;
+    private final int yellowLevel = 1900;
+    private final int darkYellowLevel = 3500;
+    private final int whiteLevel = 8500;
+
     public ArrayList<ArrayList<MapCoordinate>> data;
     private int xDataSize;
     private int yDataSize;
 
-    private int altitudeMin = -11000;
-    private int altitudeMax = 8500;
+    private int altitudeMin;
+    private int altitudeMax;
+
     //beginfun
     private float zoom = 1;
     private int xZoomPanCompensation = 0;
@@ -31,55 +38,12 @@ public class EarthRenderer extends JComponent {
     private int yLastMouseDragStart = 0;
     private int xPan = 0;
     private int yPan = 0;
-    //for centering
     private int xDefaultPan;
     //endfun
 
     public EarthRenderer(Earth earth){
         this.earth = earth;
-
-        this.refreshData();
-
-        var adaptor = new MapInputAdapter();
-        this.addMouseListener(adaptor);
-        this.addMouseWheelListener(adaptor);
-        this.addMouseMotionListener(adaptor);
-        this.addKeyListener(adaptor);
-//
-//        var focusable = this.isFocusable();
-    }
-
-    public void seaLevel(int addedAltitude){
-        //this is utterly inefficient, better option is to affect just the values displayed
-//        this.earth.seaLevel(addedAltitude);
-//        this.refreshData();
-        this.seaLevelRise += addedAltitude;
-        this.altitudeMin += addedAltitude;
-        this.altitudeMax += addedAltitude;
-
-        //centering out the X axis on 0;
-        xDefaultPan += this.xProjectionSize / 2;
-    }
-
-    private void refreshData() {
-        this.data = new ArrayList<ArrayList<MapCoordinate>>();
-
-        for (var xEntry: this.earth.getMapData().entrySet()){
-            this.data.add(new ArrayList<>(xEntry.getValue().values()));
-        }
-
-        this.checkDataIntegrity();
-        this.setRenderingUnits();
-    }
-
-    private void checkDataIntegrity() {
-        var yAxisSize = data.get(0).size();
-
-        for (var entry: this.data){
-            if(entry.size() != yAxisSize){
-                throw new IllegalArgumentException("EarthRenderer needs rectangularly shaped data");
-            }
-        }
+        this.Init();
     }
 
     @Override
@@ -98,49 +62,33 @@ public class EarthRenderer extends JComponent {
         var yVirtualProjectionSize = zoom * yProjectionSize;
         var xVirtualPan = this.xPan * zoom;
         var yVirtualPan = this.yPan * zoom;
+
         for (var x = 0; x < xProjectionSize; x++){
             for (var y = 0; y < yProjectionSize; y++){
                 //account for plane panning, limit value to the projectionConstraints
                 var xSubModulo =  ((x + xVirtualPan) % xVirtualProjectionSize);
                 var ySubModulo =  ((y - yVirtualPan) % yVirtualProjectionSize);
+
                 //if it is negative, invert it with respect the projection size
                 var xSubExact = realXUnit * (xSubModulo < 0 ? xVirtualProjectionSize + xSubModulo : xSubModulo);
                 var ySubExact = realYUnit * (ySubModulo < 0 ? yVirtualProjectionSize + ySubModulo : ySubModulo);
                 //round the value for array indexing,
+
                 var xSubIndex = (int)Math.floor(xSubExact);
                 var ySubIndex = (int)Math.floor(ySubExact);
 
-                try {
-                    var mapCoordinate = this.data.get(xSubIndex).get(ySubIndex);
-                    var color = getColor(mapCoordinate.altitude + seaLevelRise);
-                    g.setColor(color);
-                } catch (Exception e){
-                    System.out.println(x + " " + y);
-                }
-                // The data is ordered by longitude, latitude
-                //  We are projecting an image that starts at left bottom from top left, that is why we invert y
-                var yCoordinate = yProjectionSize - 1 - y;
-                //centering out on 0;
-//                var xCoordinate = (x + xProjectionSize / 2) % xProjectionSize;
-                var xCoordinate = x;
-                g.drawLine(xCoordinate,yCoordinate,xCoordinate,yCoordinate);
+                // get the subSample
+                var mapCoordinate = this.data.get(xSubIndex).get(ySubIndex);
+                //pick a scaled color with respect to altitude
+                var color = getColor(mapCoordinate.altitude + seaLevelRise);
+                g.setColor(color);
+
+                // Invert Y - projecting top left to bottom right data structure into a bottom left, top right plane
+                var yInverted = yProjectionSize - 1 - y;
+                g.drawLine(x,yInverted,x,yInverted);
             }
         }
     }
-
-    private void setRenderingUnits() {
-        this.xDataSize = data.size();
-        this.yDataSize = data.get(0).size();
-
-        this.realXUnit = xDataSize/(double)(xProjectionSize * zoom);
-        this.realYUnit = yDataSize/(double)(yProjectionSize * zoom);
-    }
-
-    private int waterLevel = 0;
-    private int greenLevel = 300;
-    private int yellowLevel = 1900;
-    private int darkYellowLevel = 3500;
-    private int whiteLevel = 8500;
 
     private Color getColor(double altitude) {
         if (altitude < waterLevel){
@@ -169,8 +117,7 @@ public class EarthRenderer extends JComponent {
             var blue = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
             return new Color(red, green, blue);
         }
-
-        else return Color.BLACK;
+        else return Color.PINK;
     }
 
     public double ScaleValue(double value, int min, int max, int maxScale)
@@ -183,18 +130,68 @@ public class EarthRenderer extends JComponent {
         return min + (value - minScale) / (double)(maxScale - minScale) * (double)(max - min);
     }
 
+    private void Init(){
+        this.refreshData();
 
-    private double getWholeNumberLeftOver(double value){
-        var d = String.valueOf(value);
-        var part = d.split("\\.");
+        var adaptor = new MapInputAdapter();
+        this.addMouseListener(adaptor);
+        this.addMouseWheelListener(adaptor);
+        this.addMouseMotionListener(adaptor);
+        this.addKeyListener(adaptor);
 
-        var decimalPart = Double.parseDouble("0." + part[1]);
-
-        return decimalPart;
+        //centering out the X axis on 0;
+        this.xPan = xDefaultPan = this.xProjectionSize / 2;
     }
 
-    private int scalePanUnits(double value){
-        return (int)(value / zoom);
+    private void seaLevel(int addedAltitude){
+        //this is utterly inefficient, but it is part of the assignment, better option is to affect just the values displayed
+//        this.earth.seaLevel(addedAltitude);
+//        this.refreshData();
+        this.seaLevelRise += addedAltitude;
+        this.altitudeMin += addedAltitude;
+        this.altitudeMax += addedAltitude;
+    }
+
+    private void refreshData() {
+        this.data = new ArrayList<>();
+
+        for (var xEntry: this.earth.getMapData().entrySet()){
+            var entryArray = new ArrayList<MapCoordinate>();
+
+            for (var value: xEntry.getValue().values()){
+                if(this.altitudeMax < value.altitude){
+                    this.altitudeMax = (int)Math.ceil(value.altitude);
+                }
+
+                if(this.altitudeMin > value.altitude){
+                    this.altitudeMin = (int)Math.floor(value.altitude);
+                }
+
+                entryArray.add(value);
+            }
+
+            this.data.add(entryArray);
+        }
+
+        this.checkDataIntegrity();
+        this.setRenderingUnits();
+    }
+
+    private void checkDataIntegrity() {
+        var yAxisSize = data.get(0).size();
+
+        for (var entry: this.data){
+            if(entry.size() != yAxisSize){
+                throw new IllegalArgumentException("EarthRenderer needs rectangularly shaped data");
+            }
+        }
+    }
+
+    private void setRenderingUnits() {
+        this.xDataSize = data.size();
+        this.yDataSize = data.get(0).size();
+        this.realXUnit = xDataSize/(double)(xProjectionSize * zoom);
+        this.realYUnit = yDataSize/(double)(yProjectionSize * zoom);
     }
 
     class MapInputAdapter extends MouseAdapter implements KeyListener {
@@ -255,8 +252,8 @@ public class EarthRenderer extends JComponent {
             int yMouseDragEnd = e.getY();
 
             if(mouseDragInProgress){
-                xPan += scalePanUnits(xLastMouseDragStart - xMouseDragEnd);
-                yPan += scalePanUnits(yLastMouseDragStart - yMouseDragEnd);
+                xPan += (xLastMouseDragStart - xMouseDragEnd) / zoom;
+                yPan += (yLastMouseDragStart - yMouseDragEnd) / zoom;
                 repaint();
             }
 

@@ -28,6 +28,14 @@ public class Main {
     }
 
 
+    public static double getWholeNumberLeftOver(double value){
+        var d = String.valueOf(value);
+        var part = d.split("\\.");
+
+        var decimalPart = Double.parseDouble("0." + part[1]);
+
+        return decimalPart;
+    }
 
     public static void main(String[] args) throws InterruptedException {
 //        // What does the parameter do?
