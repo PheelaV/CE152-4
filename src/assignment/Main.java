@@ -17,13 +17,17 @@ public class Main {
     public static void main(String[] args){
 
 
+        //java.lang.OutOfMemoryError: Java heap space
+//        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\earthHD.xyz";
+
         String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\earth.xyz";
 //        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\tesatData.xyz";
 //        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\CE152-4.xyz";
 
         var earth = new Earth();
 
-        earth.readDataArray(fileName);
+        //DEMONSTRATION
+//        earth.readDataArray(fileName);
         earth.readDataMap(fileName);
 //        earth.generateMap(1);
 
@@ -65,26 +69,15 @@ public class Main {
 //                break;
 //            }
 //        }
-        var f = new JFrame();
-        var renderer = new EarthRenderer(earth);
-        f.getContentPane().setPreferredSize(
-                new Dimension(renderer.getWidth(), renderer.getHeight()));
-        f.add(renderer);
-        f.setResizable(false);
-        f.pack();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setVisible(true);
-        f.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                System.out.println(e);
-            }
-        });
+///ENDDEMONSTRATION
 
-var a = 2;
+        var earthFrame = new EarthFrame(earth);
+
 //        Please enter a longitude (0-360) and latitude (-90-90):
 //        30 45
 //        The altitude at longitude 30.0 and latitude 45.0 is -37.0 meters.
+
+        System.out.println("Done");
 
     }
 
