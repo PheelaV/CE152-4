@@ -9,8 +9,8 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
-data/earth.xyz
 
+*.xyz
 # Generated files
 .idea/**/contentModel.xml
 

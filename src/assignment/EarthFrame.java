@@ -3,7 +3,15 @@ package assignment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class EarthFrame extends JFrame {
 
@@ -14,6 +22,10 @@ public class EarthFrame extends JFrame {
 
     private ArrayList<MapCoordinate> selectedCoordinates = new ArrayList<>();
 
+    private final String currentDirectory = System.getProperty("user.dir");
+
+    private String logFile;
+
     public EarthFrame(Earth earth){
         this.earthRenderer = new EarthRenderer(earth);
         this.eventListener = new EarthFrameRenderListener();
@@ -22,6 +34,10 @@ public class EarthFrame extends JFrame {
         this.earthRenderer.addKeyListener(earthFrameRenderListener);
         this.earthRenderer.addMouseMotionListener(earthFrameRenderListener);
         this.earthRenderer.addMouseWheelListener(earthFrameRenderListener);
+
+        var earthWindowsListener = new EarthWindowListener();
+        this.addWindowListener(earthWindowsListener);
+
         this.setResizable(false);
         this.getContentPane().setPreferredSize(new Dimension(this.earthRenderer.getWidth(), this.earthRenderer.getHeight()));
         this.add(this.earthRenderer);
@@ -29,6 +45,57 @@ public class EarthFrame extends JFrame {
         this.setTitle(title);
         this.setVisible(true);
         this.repaint();
+
+        //SOURCE: https://stackoverflow.com/questions/3914404/how-to-get-current-moment-in-iso-8601-format-with-date-hour-and-minute/3914973
+        var timezone = TimeZone.getTimeZone("UTC");
+        var dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmssSSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        dateFormat.setTimeZone(timezone);
+        var nowAsISO = dateFormat.format(new Date());
+        this.logFile = "altitudeMapLog_" + nowAsISO + ".xyz";
+    }
+
+    private void saveCoordinate(ArrayList<MapCoordinate> coordinates){
+
+        var logFilePath = Paths.get(currentDirectory, logFile);
+
+        try {
+            FileWriter myWriter = new FileWriter(logFilePath.toString(), true);
+
+            for (var coordinate: coordinates){
+                myWriter.write(coordinate.toString() + "\n");
+            }
+
+            myWriter.close();
+        } catch (IOException e) {
+            System.out.println("Failed to save log");
+            e.printStackTrace();
+        }
+    }
+
+    class EarthWindowListener implements  WindowListener {
+
+        @Override
+        public void windowOpened(WindowEvent e) { }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+            saveCoordinate(selectedCoordinates);
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e) { }
+
+        @Override
+        public void windowIconified(WindowEvent e) { }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) { }
+
+        @Override
+        public void windowActivated(WindowEvent e) { }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) { }
     }
 
     class EarthFrameRenderListener extends MouseAdapter implements KeyListener {

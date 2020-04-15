@@ -13,10 +13,6 @@ public class Coordinate {
 
     @Override
     public String toString() {
-        return "Coordinate{" +
-                longitude +
-                "\t" + latitude +
-                "\t" + altitude +
-                '}';
+        return longitude + "\t" + latitude + "\t" + altitude;
     }
 }

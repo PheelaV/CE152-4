@@ -1,9 +1,5 @@
 package assignment;
 
-import testPreparaiton.Ball;
-
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
