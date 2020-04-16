@@ -110,9 +110,10 @@ public class EarthFrame extends JFrame {
                 var x = earthRenderer.getLastClickedX();
                 var y = earthRenderer.getLastClickedY();
                 var visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
-                setTitle(title + "| selected (" +  x + "," + y + ")  visible altitude= " + visibleAltitude);
-
                 var selectedCoordinate = earthRenderer.getLastSelectedCoordinate();
+                String format = "%s| selected(%d, %d) long=%.2f lat=%.2f trueAlt=%.2f visibleAlt=%.2f";
+                setTitle(String.format(format, title, x, y, selectedCoordinate.longitude, selectedCoordinate.latitude, selectedCoordinate.altitude, visibleAltitude));
+
                 System.out.println(selectedCoordinate);
 
                 var previouslySelectedCoordinateIndex = selectedCoordinates.size() - 1;
