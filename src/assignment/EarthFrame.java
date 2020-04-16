@@ -103,8 +103,8 @@ public class EarthFrame extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-//1 left
-//3 right
+            //1 left
+            //3 right
             var buttonClicked = e.getButton();
             if (buttonClicked== MouseEvent.BUTTON1) {
                 var x = earthRenderer.getLastClickedX();

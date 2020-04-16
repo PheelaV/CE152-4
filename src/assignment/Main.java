@@ -73,12 +73,11 @@ public class Main {
 
         var earthFrame = new EarthFrame(earth);
 
+        var tutorialFrame = new TutorialFrame();
+
 //        Please enter a longitude (0-360) and latitude (-90-90):
 //        30 45
 //        The altitude at longitude 30.0 and latitude 45.0 is -37.0 meters.
-
-        System.out.println("Done");
-
     }
 
     private static boolean isValidSingleArgument(String argument) {
