@@ -267,6 +267,8 @@ public class EarthRenderer extends JComponent {
 //            }
 //            clickIndicatorActive
 
+            if (e.getButton() != MouseEvent.BUTTON1) return;
+
             xLastClicked = e.getX();
             yLastClicked = e.getY();
             setProjectionVariables();
@@ -275,10 +277,6 @@ public class EarthRenderer extends JComponent {
             lastCoordinateSelected = coordinate;
             selectedVisibleAltitude = coordinate.altitude + seaLevelRise;
             onCoordinateSelected();
-
-            System.out.println(coordinate);
-            System.out.println("VisibleAltitude: " + (coordinate.altitude + seaLevelRise));
-
             repaint();
         }
 

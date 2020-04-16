@@ -7,14 +7,24 @@ public class MapCoordinate extends Coordinate implements  Comparable<MapCoordina
     }
 
     public double distanceTo(MapCoordinate mapCoordinate){
-        return  Math.sqrt(
-                    Math.exp(this.latitude - mapCoordinate.latitude)
-                  + Math.exp(this.longitude - mapCoordinate.longitude)
+        //The mighty spec says:
+////                Altitude must not be taken into account and you can assume the Earth is
+////                a smooth sphere for the purposes of this calculation.
+////                  + Math.exp(this.altitude - mapCoordinate.altitude)
 
-//                Altitude must not be taken into account and you can assume the Earth is
-//                a smooth sphere for the purposes of this calculation.
-//                  + Math.exp(this.altitude - mapCoordinate.altitude)
-                );
+        //SOURCE: https://www.movable-type.co.uk/scripts/latlong.html
+        int earthRadius = 6371000;
+        double latRad = mapCoordinate.latitude * Math.PI / 180;
+        double latRad2 = this.latitude * Math.PI / 180;
+        double latDifRad = (this.latitude - mapCoordinate.latitude)  * Math.PI / 180;
+        double lonDifRad = (this.longitude - mapCoordinate.longitude)  * Math.PI / 180;
+
+        double sqHalfChordLen = Math.sin(latDifRad/2) * Math.sin(latDifRad/2) +
+                    Math.cos(latRad) * Math.cos(latRad2) *
+                    Math.sin(lonDifRad/2) * Math.sin(lonDifRad/2);
+        double angDistRad = 2 * Math.atan2(Math.sqrt(sqHalfChordLen), Math.sqrt(1-sqHalfChordLen));
+
+        return earthRadius * angDistRad;
     }
 
     @Override

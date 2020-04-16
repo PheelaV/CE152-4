@@ -5,11 +5,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -20,7 +19,7 @@ public class EarthFrame extends JFrame {
 
     private final String title = "Earth Altitude Map";
 
-    private ArrayList<MapCoordinate> selectedCoordinates = new ArrayList<>();
+    private ArrayList<OrderableMapCoordinate> selectedCoordinates = new ArrayList<>();
 
     private final String currentDirectory = System.getProperty("user.dir");
 
@@ -54,7 +53,7 @@ public class EarthFrame extends JFrame {
         this.logFile = "altitudeMapLog_" + nowAsISO + ".xyz";
     }
 
-    private void saveCoordinate(ArrayList<MapCoordinate> coordinates){
+    private void saveCoordinate(ArrayList<OrderableMapCoordinate> coordinates){
 
         var logFilePath = Paths.get(currentDirectory, logFile);
 
@@ -71,6 +70,8 @@ public class EarthFrame extends JFrame {
             e.printStackTrace();
         }
     }
+
+//    private double calculate
 
     class EarthWindowListener implements  WindowListener {
 
@@ -102,20 +103,58 @@ public class EarthFrame extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            var x = earthRenderer.getLastClickedX();
-            var y = earthRenderer.getLastClickedY();
-            var visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
-            setTitle(title + "| selected (" +  x + "," + y + ")  visible altitude= " + visibleAltitude);
+//1 left
+//3 right
+            var buttonClicked = e.getButton();
+            if (buttonClicked== MouseEvent.BUTTON1) {
+                var x = earthRenderer.getLastClickedX();
+                var y = earthRenderer.getLastClickedY();
+                var visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
+                setTitle(title + "| selected (" +  x + "," + y + ")  visible altitude= " + visibleAltitude);
 
-            selectedCoordinates.add(earthRenderer.getLastSelectedCoordinate());
-            // print the clicked coordinates to cl
-            // print the distance to last selected
-            // sort the list
-            // right click should delete the last added coordinate and print the deleted coordinate
+                var selectedCoordinate = earthRenderer.getLastSelectedCoordinate();
+                System.out.println(selectedCoordinate);
 
-            //method, that will write the list of coordinates to a file, start a new file each time the program is run,
-            // I may overwrite the last file, but I shall not overwrite the existing coordinates when adding a new set
+                var previouslySelectedCoordinateIndex = selectedCoordinates.size() - 1;
+                if (previouslySelectedCoordinateIndex != -1){
+                    var previouslySelectedCoordinate = selectedCoordinates.get(previouslySelectedCoordinateIndex);
 
+                    System.out.println("Distance to previously selected coordinate = " + selectedCoordinate.distanceTo(previouslySelectedCoordinate) + " meters" );
+                }
+
+                selectedCoordinates.add(new OrderableMapCoordinate(selectedCoordinate, selectedCoordinates.size()));
+                Collections.sort(selectedCoordinates);
+            } else if (buttonClicked== MouseEvent.BUTTON3) {
+                if (selectedCoordinates.size() == 0) return;
+
+                int lastAddedIndex = -1;
+                int maxCoordinateOrder = -1;
+                for (int i = 0; i < selectedCoordinates.size(); i++){
+                    var coordinateOrder = selectedCoordinates.get(i).getOrder();
+
+                    if(coordinateOrder > maxCoordinateOrder){
+                       lastAddedIndex = i;
+                        maxCoordinateOrder = coordinateOrder;
+                    }
+                }
+                var lastCoordinate = selectedCoordinates.get(lastAddedIndex);
+
+                selectedCoordinates.remove(lastAddedIndex);
+                System.out.println("Deleted: " + lastCoordinate);
+            };
+
+            // The mighty spec says:
+//            Add a mouse listener to your graphical user interface (GUI).
+//            A left click should:
+//                • add the coordinates of your map + true elevation to a List<MapCoordinate> OR if you did
+//                    not complete Exercise 3+4 add a random double with the current screen coordinates to the list
+//                • Print the clicked coordinates to the command line
+//                • Print the distance to the previously clicked point (if there was one) to the command line
+//                • Sort the list
+//            A right click should:
+//                • Delete the last coordinate that was added to the list (not the last one in the list)
+//                • Print the deleted coordinate
+            // And so it will be
         }
 
         @Override
