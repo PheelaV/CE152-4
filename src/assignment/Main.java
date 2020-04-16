@@ -1,16 +1,7 @@
 package assignment;
 
-import lab9.DoubleParser;
-import testPreparaiton.Ball;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Main {
 
