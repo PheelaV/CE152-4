@@ -35,10 +35,7 @@ public class MapCoordinate extends Coordinate implements  Comparable<MapCoordina
                 : this.longitude != coordinate.longitude
                     ? (int)(this.longitude - coordinate.longitude)
                 : this.altitude != coordinate.altitude
-                    ? (int)(this.altitude - coordinate.altitude) :  hackToThrowException();
-    }
-    public int hackToThrowException(){
-        throw new  IllegalArgumentException("The comparison was invalid");
+                    ? (int)(this.altitude - coordinate.altitude) :  0;
     }
 
     @Override

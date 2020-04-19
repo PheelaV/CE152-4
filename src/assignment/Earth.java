@@ -17,7 +17,6 @@ public class Earth {
 
     private boolean dataLoaded;
 
-
     public void readDataArray(String filename){
         //store the data in private two dimensional array of type double
         ArrayList<String[]> rows = getFileRows(filename);
@@ -39,11 +38,19 @@ public class Earth {
 
         this.initializeMapOfEarth();
         for (var row: rows){
-            var locationTuple = getMapCoordinate(row);
+            var locationTuple = createMapCoordinate(row);
             this.insertCoordinate(locationTuple);
         }
 
         this.Celebrate();
+    }
+
+    public double getAltitude(double longitude, double latitude) throws NoSuchElementException{
+        return getMapCoordinate(longitude, latitude).altitude;
+    }
+
+    public boolean mapContainsCoordinates(double longitude, double latitude){
+        return this.mapOfEarth.containsKey(longitude) && this.mapOfEarth.get(longitude).containsKey(latitude);
     }
 
     public void generateMap(double resolution){
@@ -57,19 +64,56 @@ public class Earth {
         this.Celebrate();
     }
 
+    public List<Coordinate> coordinatesAbove(double altitude){
+        return Arrays.stream(this.arrayOfEarth)
+                .filter(x -> x[2] > altitude)
+                .map(x -> new Coordinate(x[0], x[1], x[2]))
+                .collect(Collectors.toList());
+    }
+
+    public List<Coordinate> coordinatesBelow(double altitude){
+        return Arrays.stream(this.arrayOfEarth)
+                .filter(x -> x[2] < altitude)
+                .map(x -> new Coordinate(x[0], x[1], x[2]))
+                .collect(Collectors.toList());
+    }
+
+    public double percentageAbove(double altitude) throws DataNotLoadedException {
+        this.checkDataLoaded("percentageAbove");
+
+        return Arrays.stream(this.arrayOfEarth)
+                .filter(x -> x[2] > altitude)
+                .count() / (double)this.arrayOfEarth.length * 100d;
+    }
+
+    public double percentageBellow(double altitude) throws DataNotLoadedException {
+        this.checkDataLoaded("percentageBelow");
+
+        return Arrays.stream(this.arrayOfEarth)
+                .filter(x -> x[2] < altitude)
+                .count() / (double)this.arrayOfEarth.length * 100d;
+    }
+
     private void initializeMapOfEarth() {
         this.mapOfEarth = new TreeMap<>();
+    }
+
+    private MapCoordinate getMapCoordinate(double longitude, double latitude) throws NoSuchElementException{
+
+        if(!mapContainsCoordinates(longitude, latitude)) throw new NoSuchElementException("There is no such entry in the map for the provided coordinates.");
+
+        return this.mapOfEarth.get(longitude).get(latitude);
     }
 
     private ArrayList<MapCoordinate> getRandomLocationTuples(double resolution) {
         double xRealResolution = (int)(360/resolution);
         double yRealResolution = (int)(180/resolution);
         var result = new ArrayList<MapCoordinate>();
-        var random = new Random(104729);
+        var random = new Random(444);
 
         for (var x = 0; x < xRealResolution; x++){
             for (var y = 0; y < yRealResolution; y++){
-                result.add(new MapCoordinate(x, y, random.nextDouble()));
+                result.add(new MapCoordinate(x, y, random.nextDouble() * 10000 - 5000));
             }
         }
 
@@ -85,7 +129,7 @@ public class Earth {
         }
     }
 
-    private MapCoordinate getMapCoordinate(String[] row) {
+    private MapCoordinate createMapCoordinate(String[] row) {
         return new MapCoordinate(Double.parseDouble(row[0]), Double.parseDouble(row[1]), Double.parseDouble(row[2]));
     }
 
@@ -117,41 +161,6 @@ public class Earth {
         }
 
         return rows;
-    }
-
-    public List<Coordinate> coordinatesAbove(double altitude){
-        return Arrays.stream(this.arrayOfEarth)
-                .filter(x -> x[2] > altitude)
-                .map(x -> new Coordinate(x[0], x[1], x[2]))
-                .collect(Collectors.toList());
-    }
-
-    public List<Coordinate> coordinatesBelow(double altitude){
-        return Arrays.stream(this.arrayOfEarth)
-                .filter(x -> x[2] < altitude)
-                .map(x -> new Coordinate(x[0], x[1], x[2]))
-                .collect(Collectors.toList());
-    }
-
-    public void percentageAbove(double altitude) throws DataNotLoadedException {
-        this.checkDataLoaded("percentageAbove");
-
-        double percentage = (double)Arrays.stream(this.arrayOfEarth).filter(x -> x[2] > altitude).count() / (double)this.arrayOfEarth.length * 100;
-
-        //SOURCE: https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
-        //SOURCE: https://docs.oracle.com/javase/tutorial/java/data/numberformat.html
-        String format = "Proportion of coordinates above %1$.1f meters: %2$.1f%%";
-
-        System.out.println(String.format(format, altitude, percentage));
-    }
-
-    public void percentageBelow(double altitude) throws DataNotLoadedException {
-        this.checkDataLoaded("percentageBelow");
-
-        double percentage = Arrays.stream(this.arrayOfEarth).filter(x -> x[2] < altitude).count() / this.arrayOfEarth.length * 100;
-        String format = "Proportion of coordinates below %1$.1f meters: %2$.1f%%";
-
-        System.out.println(String.format(format, altitude, percentage));
     }
 
     private void checkDataLoaded() throws DataNotLoadedException {
@@ -187,3 +196,12 @@ public class Earth {
 
     }
 }
+
+//        __
+//   hi  c(..)o    (
+//     \__(-)     __)
+//        /\     (
+//       /(_)___)
+//      w /|
+//        | \
+//        m  m

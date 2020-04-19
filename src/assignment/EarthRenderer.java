@@ -181,7 +181,7 @@ public class EarthRenderer extends JComponent {
         this.xPan = xDefaultPan = this.xProjectionSize / 2;
     }
 
-    private void seaLevel(int addedAltitude){
+    public void seaLevel(int addedAltitude){
         //this is utterly inefficient, but it is part of the assignment spec,
         // better option is to affect just the values displayed
         // that is why the code is currently deactivated

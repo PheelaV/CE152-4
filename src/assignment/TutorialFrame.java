@@ -13,7 +13,7 @@ public class TutorialFrame extends JFrame {
         this.setResizable(false);
         this.getContentPane().setPreferredSize(new Dimension(400,350));
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
-
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.add(new Label("CONTROLS:", Label.CENTER));
         for (var text: new String[]{

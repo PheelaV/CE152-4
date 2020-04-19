@@ -38,6 +38,7 @@ public class EarthFrame extends JFrame {
         this.addWindowListener(earthWindowsListener);
 
         this.setResizable(false);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.getContentPane().setPreferredSize(new Dimension(this.earthRenderer.getWidth(), this.earthRenderer.getHeight()));
         this.add(this.earthRenderer);
         this.pack();
@@ -51,6 +52,11 @@ public class EarthFrame extends JFrame {
         dateFormat.setTimeZone(timezone);
         var nowAsISO = dateFormat.format(new Date());
         this.logFile = "altitudeMapLog_" + nowAsISO + ".xyz";
+    }
+
+    // The logic is: what is the offset to normal sea level
+    public void setInitialSeaLevel(int addedAltitude){
+        this.earthRenderer.seaLevel(addedAltitude);
     }
 
     private void saveCoordinate(ArrayList<OrderableMapCoordinate> coordinates){
