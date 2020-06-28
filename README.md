@@ -1,3 +1,4 @@
+![banner](doc/banner.png)
 # CE152-4
 ## Why?
 This repo is me learning Java. The main package is the assignment package, which is the final parctical test of the year. Currently the only one visible, because of the cleanup.
@@ -8,6 +9,8 @@ The task is to create a map of world given .xzy file full of coordinates and the
 
 
 ## How?
+Uncompress the data in the data directory and make sure that the fileName path in [Main.java](./src/assignment/Main.java) points to that data. That is all!
+
 Go ahead and give it a try, if you were Noah, what place would be your best bet? 
 
 One is able to select a certain point via mouse click, view its true altitude with respect to the sea level in the top bar. You can also see how much of the land disapears and reapears by affecting the sea level with your mouse wheel.
