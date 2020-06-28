@@ -1,6 +1,6 @@
 # CE152-4
 ## Why?
-This repo is me learning Java. The main package is the assignment package, which is the final parctical test of the year.
+This repo is me learning Java. The main package is the assignment package, which is the final parctical test of the year. Currently the only one visible, because of the cleanup.
 
 
 ## What?
