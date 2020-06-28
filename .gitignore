@@ -9,6 +9,8 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+src/**
+!src/assignment/**
 
 *.xyz
 # Generated files
