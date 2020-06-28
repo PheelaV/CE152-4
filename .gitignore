@@ -11,6 +11,7 @@
 
 src/**
 !src/assignment/**
+!src/assignment
 
 *.xyz
 # Generated files
