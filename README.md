@@ -5,7 +5,7 @@ This repo is me learning Java. I also had to follow an assignment spec, that is 
 
 
 ## What?
-The task is to create a map of world given .xzy file full of coordinates and their corresponding altitudes. The whole thing is basically a color coded scatter plot. The point of this exercise is to be able to see the possible effects of global warming and to raise awareness amongst the students. Which I have accomplished, sort of. This primitive models definitely shows you which areas would be hit first. 
+The task is to create a map of world given .xzy file full of coordinates and their corresponding altitudes. The whole thing is basically a color coded scatter plot. The point of this exercise is to be able to see the possible effects of global warming, with a bit of salt I might add, and to raise awareness amongst the students. Which I have accomplished, sort of. This primitive models definitely shows you which areas would be hit first. 
 
 
 ## How?
