@@ -1,7 +1,7 @@
 ![banner](doc/banner.png)
 # CE152-4
 ## Why?
-This repo is me learning Java. The main package is the assignment package, which is the final parctical test of the year. Currently the only one visible, because of the cleanup.
+This repo is me learning Java. I also had to follow an assignment spec, that is why some things seem a bit forced. The main package is the assignment package, which is the final parctical test of the year. Currently the only one visible, because of the cleanup.
 
 
 ## What?
