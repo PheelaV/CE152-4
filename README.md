@@ -15,7 +15,7 @@ Go ahead and give it a try, if you were Noah, what place would be your best bet?
 
 One is able to select a certain point via mouse click, view its true altitude with respect to the sea level in the top bar. You can also see how much of the land disapears and reapears by affecting the sea level with your mouse wheel.
 
-## BONUST TIME
+## BONUS TIME
 For the fun of it, I have also added panning and zooming, go ahead and try to find your hometown!
 
 ![World map preview](doc/EarthAltitudeMap.png)
