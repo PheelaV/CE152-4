@@ -16,7 +16,7 @@ public class TutorialFrame extends JFrame {
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.add(new Label("CONTROLS:", Label.CENTER));
-        for (var text: new String[]{
+        for (String text: new String[]{
                 "Leftclick          to select points",
                 "Rightclick         to do what the spec says",
                 ""
@@ -24,7 +24,7 @@ public class TutorialFrame extends JFrame {
             this.add(new Label(text, Label.LEFT));
         }
         this.add(new Label("FUN BONUS:", Label.CENTER));
-        for (var text: new String[]{
+        for (String text: new String[]{
                 "Scroll Up&Down     to affect the seaLevel",
                 "Click&Drag         to pan around the map",
                 "Press key \"o\"\t  to zoom Out",
@@ -35,10 +35,10 @@ public class TutorialFrame extends JFrame {
             this.add(new Label(text, Label.LEFT));
         }
         this.add(new Label("Hope you enjoy!", Label.CENTER));
-        var okButton = new Button("Ay ay captain");
+        Button okButton = new Button("Ay ay captain");
 
         ///AAAA super lazy welcome to Java(Script)
-        var self = this;
+        TutorialFrame self = this;
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

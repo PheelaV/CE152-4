@@ -1,10 +1,18 @@
 package assignment;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,13 +36,13 @@ public class EarthFrame extends JFrame {
     public EarthFrame(Earth earth){
         this.earthRenderer = new EarthRenderer(earth);
         this.eventListener = new EarthFrameRenderListener();
-        var earthFrameRenderListener = new EarthFrameRenderListener();
+        EarthFrameRenderListener earthFrameRenderListener = new EarthFrameRenderListener();
         this.earthRenderer.addMouseListener(earthFrameRenderListener);
         this.earthRenderer.addKeyListener(earthFrameRenderListener);
         this.earthRenderer.addMouseMotionListener(earthFrameRenderListener);
         this.earthRenderer.addMouseWheelListener(earthFrameRenderListener);
 
-        var earthWindowsListener = new EarthWindowListener();
+        EarthWindowListener earthWindowsListener = new EarthWindowListener();
         this.addWindowListener(earthWindowsListener);
 
         this.setResizable(false);
@@ -47,10 +55,10 @@ public class EarthFrame extends JFrame {
         this.repaint();
 
         //SOURCE: https://stackoverflow.com/questions/3914404/how-to-get-current-moment-in-iso-8601-format-with-date-hour-and-minute/3914973
-        var timezone = TimeZone.getTimeZone("UTC");
-        var dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmssSSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        TimeZone timezone = TimeZone.getTimeZone("UTC");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmssSSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
         dateFormat.setTimeZone(timezone);
-        var nowAsISO = dateFormat.format(new Date());
+        String nowAsISO = dateFormat.format(new Date());
         this.logFile = "altitudeMapLog_" + nowAsISO + ".xyz";
     }
 
@@ -61,12 +69,12 @@ public class EarthFrame extends JFrame {
 
     private void saveCoordinate(ArrayList<OrderableMapCoordinate> coordinates){
 
-        var logFilePath = Paths.get(currentDirectory, logFile);
+        Path logFilePath = Paths.get(currentDirectory, logFile);
 
         try {
             FileWriter myWriter = new FileWriter(logFilePath.toString(), true);
 
-            for (var coordinate: coordinates){
+            for (OrderableMapCoordinate coordinate: coordinates){
                 myWriter.write(coordinate.toString() + "\n");
             }
 
@@ -111,20 +119,20 @@ public class EarthFrame extends JFrame {
         public void mouseClicked(MouseEvent e) {
             //1 left
             //3 right
-            var buttonClicked = e.getButton();
+            int buttonClicked = e.getButton();
             if (buttonClicked== MouseEvent.BUTTON1) {
-                var x = earthRenderer.getLastClickedX();
-                var y = earthRenderer.getLastClickedY();
-                var visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
-                var selectedCoordinate = earthRenderer.getLastSelectedCoordinate();
+                int x = earthRenderer.getLastClickedX();
+                int y = earthRenderer.getLastClickedY();
+                double visibleAltitude = earthRenderer.getSelectedVisibleAltitude();
+                MapCoordinate selectedCoordinate = earthRenderer.getLastSelectedCoordinate();
                 String format = "%s| selected(%d, %d) long=%.2f lat=%.2f trueAlt=%.2f visibleAlt=%.2f";
                 setTitle(String.format(format, title, x, y, selectedCoordinate.longitude, selectedCoordinate.latitude, selectedCoordinate.altitude, visibleAltitude));
 
                 System.out.println(selectedCoordinate);
 
-                var previouslySelectedCoordinateIndex = selectedCoordinates.size() - 1;
+                int previouslySelectedCoordinateIndex = selectedCoordinates.size() - 1;
                 if (previouslySelectedCoordinateIndex != -1){
-                    var previouslySelectedCoordinate = selectedCoordinates.get(previouslySelectedCoordinateIndex);
+                    OrderableMapCoordinate previouslySelectedCoordinate = selectedCoordinates.get(previouslySelectedCoordinateIndex);
 
                     System.out.println("Distance to previously selected coordinate = " + selectedCoordinate.distanceTo(previouslySelectedCoordinate) + " meters" );
                 }
@@ -137,14 +145,14 @@ public class EarthFrame extends JFrame {
                 int lastAddedIndex = -1;
                 int maxCoordinateOrder = -1;
                 for (int i = 0; i < selectedCoordinates.size(); i++){
-                    var coordinateOrder = selectedCoordinates.get(i).getOrder();
+                    int coordinateOrder = selectedCoordinates.get(i).getOrder();
 
                     if(coordinateOrder > maxCoordinateOrder){
                        lastAddedIndex = i;
                         maxCoordinateOrder = coordinateOrder;
                     }
                 }
-                var lastCoordinate = selectedCoordinates.get(lastAddedIndex);
+                OrderableMapCoordinate lastCoordinate = selectedCoordinates.get(lastAddedIndex);
 
                 selectedCoordinates.remove(lastAddedIndex);
                 System.out.println("Deleted: " + lastCoordinate);
@@ -192,7 +200,7 @@ public class EarthFrame extends JFrame {
 
         @Override
         public void keyTyped(KeyEvent e) {
-            var charPressed = e.getKeyChar();
+            char charPressed = e.getKeyChar();
             if( charPressed == 'i' || charPressed == 'o' || charPressed == KeyEvent.VK_ESCAPE){
                 setTitle(title);
             }

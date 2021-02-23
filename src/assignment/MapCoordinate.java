@@ -40,7 +40,7 @@ public class MapCoordinate extends Coordinate implements  Comparable<MapCoordina
 
     @Override
     public boolean equals(Object obj) {
-        var coordinate = (Coordinate)obj;
+        Coordinate coordinate = (Coordinate)obj;
         return this.latitude == coordinate.latitude
             && this.longitude == coordinate.longitude
             && this.altitude == coordinate.altitude;

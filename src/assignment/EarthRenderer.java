@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class EarthRenderer extends JComponent {
 
@@ -14,6 +15,7 @@ public class EarthRenderer extends JComponent {
 
     private final int xProjectionSize = 720;
     private final int yProjectionSize = 360;
+
 
     //WARNING: Chokes on weak hardware
 //    private final int xProjectionSize = 1920;
@@ -83,16 +85,16 @@ public class EarthRenderer extends JComponent {
     public void paintComponent(Graphics g) {
         this.setProjectionVariables();
 
-        for (var x = 0; x < xProjectionSize; x++){
-            for (var y = 0; y < yProjectionSize; y++){
+        for (int x = 0; x < xProjectionSize; x++){
+            for (int y = 0; y < yProjectionSize; y++){
                 // get the subSample
-                var mapCoordinate = getProjectedMapCoordinate(x, y);
+                MapCoordinate mapCoordinate = getProjectedMapCoordinate(x, y);
                 //pick a scaled color with respect to altitude
-                var color = getColor(mapCoordinate.altitude + seaLevelRise);
+                Color color = getColor(mapCoordinate.altitude + seaLevelRise);
                 g.setColor(color);
 
                 // Invert Y - projecting top left to bottom right data structure into a bottom left, top right plane
-                var yInverted = yProjectionSize - 1 - y;
+                int yInverted = yProjectionSize - 1 - y;
                 g.drawLine(x,yInverted,x,yInverted);
             }
         }
@@ -113,16 +115,16 @@ public class EarthRenderer extends JComponent {
 
     private MapCoordinate getProjectedMapCoordinate(int x, int y){
         //account for plane panning, limit value to the projectionConstraints
-        var xSubModulo =  ((x + this.xVirtualPan) % this.xVirtualProjectionSize);
-        var ySubModulo =  ((y - this.yVirtualPan) % this.yVirtualProjectionSize);
+        float xSubModulo =  ((x + this.xVirtualPan) % this.xVirtualProjectionSize);
+        float ySubModulo =  ((y - this.yVirtualPan) % this.yVirtualProjectionSize);
 
         //if it is negative, invert it with respect the projection size
-        var xSubExact = this.realXUnit * (xSubModulo < 0 ? this.xVirtualProjectionSize + xSubModulo : xSubModulo);
-        var ySubExact = this.realYUnit * (ySubModulo < 0 ? this.yVirtualProjectionSize + ySubModulo : ySubModulo);
+        double xSubExact = this.realXUnit * (xSubModulo < 0 ? this.xVirtualProjectionSize + xSubModulo : xSubModulo);
+        double ySubExact = this.realYUnit * (ySubModulo < 0 ? this.yVirtualProjectionSize + ySubModulo : ySubModulo);
         //round the value for array indexing,
 
-        var xSubIndex = (int)Math.floor(xSubExact);
-        var ySubIndex = (int)Math.floor(ySubExact);
+        int xSubIndex = (int)Math.floor(xSubExact);
+        int ySubIndex = (int)Math.floor(ySubExact);
 
         // get the subSample
         return this.data.get(xSubIndex).get(ySubIndex);
@@ -130,29 +132,29 @@ public class EarthRenderer extends JComponent {
 
     private Color getColor(double altitude) {
         if (altitude < waterLevel){
-            var red = (int)ScaleValue(altitude, 0, 100,waterLevel);
-            var green = (int)ScaleValue(altitude, 0, 175, waterLevel);
-            var blue = (int)ScaleValue(altitude, 0, 255, waterLevel);//(int)((-1*altitude) / 11000 * 255);
+            int red = (int)ScaleValue(altitude, 0, 100,waterLevel);
+            int green = (int)ScaleValue(altitude, 0, 175, waterLevel);
+            int blue = (int)ScaleValue(altitude, 0, 255, waterLevel);//(int)((-1*altitude) / 11000 * 255);
             return new Color(red, green, blue);
         } else if (altitude < greenLevel) {
-            var red = (int)ScaleValue(altitude, 78, 224, waterLevel, greenLevel);
-            var green = (int)ScaleValue(altitude, 117, 218, waterLevel, greenLevel);
-            var blue = (int)ScaleValue(altitude, 78, 172, waterLevel, greenLevel);
+            int red = (int)ScaleValue(altitude, 78, 224, waterLevel, greenLevel);
+            int green = (int)ScaleValue(altitude, 117, 218, waterLevel, greenLevel);
+            int blue = (int)ScaleValue(altitude, 78, 172, waterLevel, greenLevel);
             return new Color(red, green, blue);
         } else if (altitude < yellowLevel) {
-            var red = (int)ScaleValue(altitude, 224, 124, greenLevel, yellowLevel);
-            var green = (int)ScaleValue(altitude, 218, 106, greenLevel, yellowLevel);
-            var blue = (int)ScaleValue(altitude, 172, 76, greenLevel, yellowLevel);
+            int red = (int)ScaleValue(altitude, 224, 124, greenLevel, yellowLevel);
+            int green = (int)ScaleValue(altitude, 218, 106, greenLevel, yellowLevel);
+            int blue = (int)ScaleValue(altitude, 172, 76, greenLevel, yellowLevel);
             return new Color(red, green, blue);
         } else if (altitude < darkYellowLevel) {
-            var red = (int)ScaleValue(altitude, 124, 190, yellowLevel, darkYellowLevel);
-            var green = (int)ScaleValue(altitude, 106, 190, yellowLevel, darkYellowLevel);
-            var blue = (int)ScaleValue(altitude, 76, 190, yellowLevel, darkYellowLevel);
+            int red = (int)ScaleValue(altitude, 124, 190, yellowLevel, darkYellowLevel);
+            int green = (int)ScaleValue(altitude, 106, 190, yellowLevel, darkYellowLevel);
+            int blue = (int)ScaleValue(altitude, 76, 190, yellowLevel, darkYellowLevel);
             return new Color(red, green, blue);
         }else if (altitude < whiteLevel) {
-            var red = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
-            var green = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
-            var blue = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
+            int red = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
+            int green = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
+            int blue = (int)ScaleValue(altitude, 190, 252, darkYellowLevel, whiteLevel);
             return new Color(red, green, blue);
         }
         else return Color.PINK;
@@ -171,7 +173,7 @@ public class EarthRenderer extends JComponent {
     private void init(){
         this.refreshData();
 
-        var adaptor = new MapInputAdapter();
+        MapInputAdapter adaptor = new MapInputAdapter();
         this.addMouseListener(adaptor);
         this.addMouseWheelListener(adaptor);
         this.addMouseMotionListener(adaptor);
@@ -195,10 +197,10 @@ public class EarthRenderer extends JComponent {
     private void refreshData() {
         this.data = new ArrayList<>();
 
-        for (var xEntry: this.earth.getMapData().entrySet()){
-            var entryArray = new ArrayList<MapCoordinate>();
+        for (Map.Entry<Double, Map<Double, MapCoordinate>> xEntry: this.earth.getMapData().entrySet()){
+            ArrayList<MapCoordinate> entryArray = new ArrayList<>();
 
-            for (var value: xEntry.getValue().values()){
+            for (MapCoordinate value: xEntry.getValue().values()){
                 if(this.altitudeMax < value.altitude){
                     this.altitudeMax = (int)Math.ceil(value.altitude);
                 }
@@ -218,9 +220,9 @@ public class EarthRenderer extends JComponent {
     }
 
     private void checkDataIntegrity() {
-        var yAxisSize = data.get(0).size();
+        int yAxisSize = data.get(0).size();
 
-        for (var entry: this.data){
+        for (ArrayList<MapCoordinate> entry: this.data){
             if(entry.size() != yAxisSize){
                 throw new IllegalArgumentException("EarthRenderer needs rectangularly shaped data");
             }
@@ -272,8 +274,8 @@ public class EarthRenderer extends JComponent {
             xLastClicked = e.getX();
             yLastClicked = e.getY();
             setProjectionVariables();
-            var yInverted = yProjectionSize - 1 - yLastClicked;
-            var coordinate = getProjectedMapCoordinate(xLastClicked,  yInverted);
+            int yInverted = yProjectionSize - 1 - yLastClicked;
+            MapCoordinate coordinate = getProjectedMapCoordinate(xLastClicked,  yInverted);
             lastCoordinateSelected = coordinate;
             selectedVisibleAltitude = coordinate.altitude + seaLevelRise;
             onCoordinateSelected();
@@ -339,7 +341,7 @@ public class EarthRenderer extends JComponent {
 
         @Override
         public void keyTyped(KeyEvent e) {
-            var charPressed = e.getKeyChar();
+            char charPressed = e.getKeyChar();
 
             if( charPressed == 'i'){
                 zoomIn();
@@ -373,8 +375,8 @@ public class EarthRenderer extends JComponent {
         private void zoomIn(){
             zoom *= 2;
 
-            var xCurrentCompensation = (int)((xProjectionSize - (xProjectionSize/zoom)) / 2) - xZoomPanCompensation;
-            var yCurrentCompensation = -(int)((yProjectionSize - (yProjectionSize/zoom)) / 2) - yZoomPanCompensation;
+            int xCurrentCompensation = (int)((xProjectionSize - (xProjectionSize/zoom)) / 2) - xZoomPanCompensation;
+            int yCurrentCompensation = -(int)((yProjectionSize - (yProjectionSize/zoom)) / 2) - yZoomPanCompensation;
             xZoomPanCompensation += xCurrentCompensation;
             yZoomPanCompensation += yCurrentCompensation;
             xPan += xCurrentCompensation;
@@ -388,8 +390,8 @@ public class EarthRenderer extends JComponent {
         private void zoomOut(){
             zoom /= 2;
 
-            var xCurrentCompensation = -xZoomPanCompensation +(int)((xProjectionSize - (xProjectionSize/zoom)) / 2);
-            var yCurrentCompensation = - (yZoomPanCompensation  + (int)((yProjectionSize - (yProjectionSize/zoom)) / 2));
+            int xCurrentCompensation = -xZoomPanCompensation +(int)((xProjectionSize - (xProjectionSize/zoom)) / 2);
+            int yCurrentCompensation = - (yZoomPanCompensation  + (int)((yProjectionSize - (yProjectionSize/zoom)) / 2));
             xZoomPanCompensation += xCurrentCompensation;
             yZoomPanCompensation += yCurrentCompensation;
             xPan += xCurrentCompensation;

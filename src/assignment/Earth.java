@@ -12,6 +12,8 @@ public class Earth {
     private int yRealResolution;
 
     //1.D coordinate number - row numbers 2.D [longitude, latitude, altitude]
+
+    //TODO: In order to make it more performant as well as use less memory, we could switch to just use arrayOfEarth as the internal data structure keeping the map
     private double[][] arrayOfEarth;
     private Map<Double, Map<Double, MapCoordinate>> mapOfEarth;
 
@@ -22,8 +24,8 @@ public class Earth {
         ArrayList<String[]> rows = getFileRows(filename);
         arrayOfEarth = new double[rows.size()][3];
 
-        for (var i = 0; i < rows.size(); i++){
-            var row = rows.get(i);
+        for (int i = 0; i < rows.size(); i++){
+            String[] row = rows.get(i);
 
             arrayOfEarth[i] = getMapTuple(rows.get(i));
         }
@@ -37,8 +39,8 @@ public class Earth {
         ArrayList<String[]> rows = getFileRows(filename);
 
         this.initializeMapOfEarth();
-        for (var row: rows){
-            var locationTuple = createMapCoordinate(row);
+        for (String[] row: rows){
+            MapCoordinate locationTuple = createMapCoordinate(row);
             this.insertCoordinate(locationTuple);
         }
 
@@ -54,10 +56,10 @@ public class Earth {
     }
 
     public void generateMap(double resolution){
-        var randomLocationTuples = getRandomLocationTuples(resolution);
+        ArrayList<MapCoordinate> randomLocationTuples = getRandomLocationTuples(resolution);
 
         this.initializeMapOfEarth();
-        for (var locationTuple: randomLocationTuples){
+        for (MapCoordinate locationTuple: randomLocationTuples){
             this.insertCoordinate(locationTuple);
         }
 
@@ -108,11 +110,11 @@ public class Earth {
     private ArrayList<MapCoordinate> getRandomLocationTuples(double resolution) {
         double xRealResolution = (int)(360/resolution);
         double yRealResolution = (int)(180/resolution);
-        var result = new ArrayList<MapCoordinate>();
-        var random = new Random(444);
+        ArrayList<MapCoordinate> result = new ArrayList<>();
+        Random random = new Random(444);
 
-        for (var x = 0; x < xRealResolution; x++){
-            for (var y = 0; y < yRealResolution; y++){
+        for (double x = 0; x < xRealResolution; x++){
+            for (double y = 0; y < yRealResolution; y++){
                 result.add(new MapCoordinate(x, y, random.nextDouble() * 10000 - 5000));
             }
         }
@@ -122,9 +124,9 @@ public class Earth {
 
     private void insertCoordinate(MapCoordinate c) {
         if(!mapOfEarth.containsKey(c.longitude)){
-            mapOfEarth.put(c.longitude, new TreeMap<>(){{put(c.latitude, c);}});
+            mapOfEarth.put(c.longitude, new TreeMap<Double, MapCoordinate>(){{put(c.latitude, c);}});
         } else {
-            var entry = mapOfEarth.get(c.longitude);
+            Map<Double, MapCoordinate> entry = mapOfEarth.get(c.longitude);
             entry.put(c.latitude, c);
         }
     }
@@ -147,8 +149,8 @@ public class Earth {
             input = new Scanner(new File(filename));
 
             while (input.hasNextLine()){
-                var line = input.nextLine();
-                var lineBytes = line.getBytes(StandardCharsets.UTF_8);
+                String line = input.nextLine();
+                byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
                 String[] row = line.split(separator);
 
                 rows.add(row);
@@ -196,12 +198,3 @@ public class Earth {
 
     }
 }
-
-//        __
-//   hi  c(..)o    (
-//     \__(-)     __)
-//        /\     (
-//       /(_)___)
-//      w /|
-//        | \
-//        m  m

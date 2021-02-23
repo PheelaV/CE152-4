@@ -11,10 +11,10 @@ public class Main {
 
         //java.lang.OutOfMemoryError: Java heap space
 //        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\earthHD.xyz";
-        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\earth.xyz";
+        String fileName = "C:\\Users\\Filip Vlcek\\source\\repos\\CE152-4\\data\\earth.xyz";
 //        String fileName = "C:\\Users\\filip\\OneDrive - University of Essex\\Documents\\School\\Object Oriented Programming-CE-152\\Assignment\\CE152-4.xyz";
 
-        var earth = new Earth();
+        Earth earth = new Earth();
         //necessary for the data visualisation
 
         System.out.println("Loading...");
@@ -25,7 +25,7 @@ public class Main {
         System.out.println("Done...");
         readingFromSystemIn(earth);
 
-        var earthFrame = new EarthFrame(earth);
+        EarthFrame earthFrame = new EarthFrame(earth);
         if(args.length != 0 && args[0].equals("--initialSeaLevel")){
             int addedMainlandAltitude;
 
@@ -39,23 +39,23 @@ public class Main {
             }
         }
 
-        var tutorialFrame = new TutorialFrame();
+        TutorialFrame tutorialFrame = new TutorialFrame();
     }
 
     private static void readingFromSystemIn(Earth earth){
-        var input = new Scanner(System.in);
-        var promptOptions = "Choose:\n\"1\"\t\tAltitude stats\n\"2\"\t\tCoordinate stats\n\"quit\"\t to quit the prompting and continue to visualisation\n: ";
-        var promptInputAltitude = "Please enter an altitude or \"quit\" to end program\n: ";
-        var promptInvalidInput = "Invalid input.";
+        Scanner input = new Scanner(System.in);
+        String promptOptions = "Choose:\n\"1\"\t\tAltitude stats\n\"2\"\t\tCoordinate stats\n\"quit\"\t to quit the prompting and continue to visualisation\n: ";
+        String promptInputAltitude = "Please enter an altitude or \"quit\" to end program\n: ";
+        String promptInvalidInput = "Invalid input.";
 
         //SOURCE: https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
         //SOURCE: https://docs.oracle.com/javase/tutorial/java/data/numberformat.html
-        var formatPercentageAbove = "Proportion of coordinates above %1$.1f meters: %2$.1f%%";
-        var formatPercentageBellow = "Proportion of coordinates bellow %1$.1f meters: %2$.1f%%";
+        String formatPercentageAbove = "Proportion of coordinates above %1$.1f meters: %2$.1f%%";
+        String formatPercentageBellow = "Proportion of coordinates bellow %1$.1f meters: %2$.1f%%";
 
-        var formatDataNotLoaded = "Data not loaded: %s";
-        var promptInputLongLat = "Please enter a longitude (0-360) and latitude (-90-90) separated by space or \"quit\" to end program\n: ";
-        var formatCoordinateStats = "longitude=%.2f°\nlatitude=%.2f°\ntrueAltitude=%.2fm";
+        String formatDataNotLoaded = "Data not loaded: %s";
+        String promptInputLongLat = "Please enter a longitude (0-360) and latitude (-90-90) separated by space or \"quit\" to end program\n: ";
+        String formatCoordinateStats = "longitude=%.2f°\nlatitude=%.2f°\ntrueAltitude=%.2fm";
         String userEntry;
 
         while(true){
@@ -74,8 +74,8 @@ public class Main {
                     try {
                         double altitude = Double.parseDouble(userEntry);
 
-                        var percentageAbove = earth.percentageAbove(altitude);
-                        var percentageBellow = earth.percentageBellow(altitude);
+                        double percentageAbove = earth.percentageAbove(altitude);
+                        double percentageBellow = earth.percentageBellow(altitude);
 
                         levelPrintln(2, String.format(formatPercentageAbove, altitude, percentageAbove));
                         levelPrintln(2, String.format(formatPercentageBellow, altitude, percentageBellow));
@@ -96,10 +96,10 @@ public class Main {
                         continue;
                     }
 
-                    var coordinates = getMapCoordinates(userEntry);
+                    double[] coordinates = getMapCoordinates(userEntry);
 
                     try {
-                        var altitude = earth.getAltitude(coordinates[0], coordinates[1]);
+                        double altitude = earth.getAltitude(coordinates[0], coordinates[1]);
 
                         levelPrintln(2, String.format(formatCoordinateStats, coordinates[0], coordinates[1], altitude));
                     } catch (NoSuchElementException e){
@@ -142,32 +142,32 @@ public class Main {
         return "quit".equals(argument);
     }
 
-//        __
-//   hi  c(..)o    (
-//     \__(-)     __)
-//        /\     (
-//       /(_)___)
-//      w /|
-//        | \
-//        m  m
-
     private static String promptUser(String message, int level, Scanner input){
         levelPrint(level, message);
         return input.nextLine();
     }
 
     private static void levelPrintln(int level, String text){
-        var inputArray = text.split("\n");
-        for (var line: inputArray){
-            System.out.println("\t".repeat(level) + line);
+        String[] inputArray = text.split("\n");
+        for (String line: inputArray){
+            System.out.println(repeat("\t", level) + line);
         }
     }
     private static void levelPrint(int level, String text){
-        var inputArray = text.split("\n");
-        for (var i = 0; i < inputArray.length - 1; i ++){
-            System.out.println("\t".repeat(level) + inputArray[i]);
+        String[] inputArray = text.split("\n");
+        for (int i = 0; i < inputArray.length - 1; i ++){
+            System.out.println(repeat("\t", level) + inputArray[i]);
         }
 
-        System.out.print("\t".repeat(level) + inputArray[inputArray.length - 1]);
+        System.out.print(repeat("\t", level) + inputArray[inputArray.length - 1]);
+    }
+
+    private static String repeat(String input, int times){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            sb.append(input);
+        }
+
+        return sb.toString();
     }
 }
